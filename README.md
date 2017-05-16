@@ -11,10 +11,20 @@ The course introduced the following topics:
 - R syntax and use basics
 - A simple example of reproducible analysis with R
 
-Two [`RMarkdown`](http://rmarkdown.rstudio.com/) files (with `.Rmd` extension) contain the main part of the course (`Pouzat_YRLS_20170516.Rmd`) and an actual, short (an not simple enough!) `RR` application (`Pouzat_YRLS_20170516.Rmd`). The `HTML` output for both of these files are also included.
+Two [`RMarkdown`](http://rmarkdown.rstudio.com/) files (with `.Rmd` extension) contain the main part of the course (`Pouzat_YRLS_20170516.Rmd`) and an actual, short (an not simple enough!) `RR` application (`Pouzat_YRLS_RR_20170516.Rmd`). The `HTML` output for both of these files are also included.
 
 To regenerate the `HTML` outputs from the source files you need first to install the `rmarkdown` package. This is done within `R` with:
 ```{.r}
 install.packages("rmarkdown")
 ```
+Once this is done, start `R` in the directory where the two `.Rmd` were downloaded and type:
+```{.r}
+library(rmarkdown)
+rmarkdown::render("Pouzat_YRLS_20170516.Rmd")
+```
+to regenerate `Pouzat_YRLS_20170516.html` and
+```{.r}
+rmarkdown::render("Pouzat_YRLS_RR_20170516.Rmd")
+```
+to regenerate `Pouzat_YRLS_RR_20170516.html`.
 
