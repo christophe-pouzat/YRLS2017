@@ -13,4 +13,8 @@ The course introduced the following topics:
 
 Two [`RMarkdown`](http://rmarkdown.rstudio.com/) files (with `.Rmd` extension) contain the main part of the course (`Pouzat_YRLS_20170516.Rmd`) and an actual, short (an not simple enough!) `RR` application (`Pouzat_YRLS_20170516.Rmd`). The `HTML` output for both of these files are also included.
 
+To regenerate the `HTML` outputs from the source files you need first to install the `rmarkdown` package. This is done within `R` with:
+```{.r}
+install.packages("rmarkdown")
+```
 
