@@ -111,6 +111,14 @@
 <li>A simple example of reproducible analysis with R</li>
 </ul>
 
+</article></slide><slide class=''><hgroup><h2>Getting the course material</h2></hgroup><article  id="getting-the-course-material">
+
+<p>The source and <code>HTML</code> files associated to this course are available on <code>GitHub</code> at the following address: <a href='https://github.com/christophe-pouzat/YRLS2017' title=''>https://github.com/christophe-pouzat/YRLS2017</a>.</p>
+
+<p>To use this material go to the above address and click on the <code>Clone or download</code> green button on the left side close to the top of the page. You will then download the source <code>.Rmd</code> and the resulting <code>.html</code> files.</p>
+
+<p>You can open and edit the first with any text editor&#8211;<a href='https://www.rstudio.com/products/rstudio/' title=''>RStudio</a> is a good choice&#8211;; you can view the second with your favorite web browser.</p>
+
 </article></slide><slide class='segue dark nobackground level1'><hgroup class = 'auto-fadein'><h2>What is reproducible research?</h2></hgroup><article  id="what-is-reproducible-research">
 
 </article></slide><slide class=''><hgroup><h2>What is &quot;Reproducible Research&quot;?</h2></hgroup><article  id="what-is-reproducible-research-1">
@@ -283,6 +291,20 @@ We can plot our random numbers with</code></pre>
 <pre><code>```{r rng-plot}
 plot(gogo)
 ```</code></pre>
+
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article >
+
+<p>You see that in addition to the &quot;usual&quot; <code>Markdown</code> syntax you have <code>Code chunks</code> starting with:</p>
+
+<pre><code>```{r chunk-name}</code></pre>
+
+<p>and ending with:</p>
+
+<pre><code>```</code></pre>
+
+<p>In between the <code>R</code> commands are interpreted and processed when the output is generated.</p>
+
+<p>You can generate outputs in: <code>pdf</code>, <code>html</code>, <code>docx</code>, <code>odt</code>.</p>
 
 </article></slide><slide class=''><hgroup><h2>Data files</h2></hgroup><article  id="data-files">
 
@@ -616,7 +638,7 @@ and neither are the reserved words.</pre>
 </article></slide><slide class=''><hgroup><h2>Data Frames</h2></hgroup><article  id="data-frames">
 
 <ul>
-<li>The <code>R</code> (composite) data type that is closest to a <em>spreadsheet</em> is the <code>data frame</code>.</li>
+<li>The <code>R</code> (composite) data type that is closest to a <em>spreadsheet</em> data structure is the <code>data frame</code>.</li>
 <li><code>Data frames</code> are <code>lists</code> whose elements must all be of the <em>same length</em> but not (necessarily) of the same type (unlike <code>matrices</code>).</li>
 <li>They can be manipulated like <code>matrices</code> or like <code>lists</code>.</li>
 <li>Check <a href='https://www.stat.auckland.ac.nz/~stats380/downloads/05-Data-Handling.pdf' title=''>Ihaka&#39;s lecture</a> on the subject for further details.</li>
@@ -697,7 +719,7 @@ and neither are the reserved words.</pre>
 
 <pre class = 'prettyprint lang-r'>for(variable in vector) expression</pre>
 
-<p>The effect of such a loop is to set the value of variable equal to each element of the vector in turn, each time evaluating the given expression.</p>
+<p>The effect of such a loop is to set the value of <code>variable</code> equal to each element of the <code>vector</code> in turn, each time evaluating the given <code>expression</code>.</p>
 
 </article></slide><slide class=''><hgroup><h2>For Loop Example 1</h2></hgroup><article  id="for-loop-example-1">
 

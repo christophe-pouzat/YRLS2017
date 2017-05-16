@@ -17,6 +17,14 @@ output: ioslides_presentation
 - R syntax and use basics
 - A simple example of reproducible analysis with R
 
+## Getting the course material
+
+The source and `HTML` files associated to this course are available on `GitHub` at the following address: <https://github.com/christophe-pouzat/YRLS2017>.
+
+To use this material go to the above address and click on the `Clone or download` green button on the left side close to the top of the page. You will then download the source `.Rmd` and the resulting `.html` files.
+
+You can open and edit the first with any text editor--[RStudio](https://www.rstudio.com/products/rstudio/) is a good choice--; you can view the second with your favorite web browser.
+
 # What is reproducible research?
 
 ## What is "Reproducible Research"?
@@ -145,6 +153,19 @@ We can plot our random numbers with</code></pre>
 <pre><code>```{r rng-plot}
 plot(gogo)
 ```</code></pre>
+
+***
+You see that in addition to the "usual" `Markdown` syntax you have `Code chunks` starting with:
+
+<pre><code>```{r chunk-name}</code></pre>
+
+and ending with:
+
+<pre><code>```</code></pre>
+
+In between the `R` commands are interpreted and processed when the output is generated.
+
+You can generate outputs in: `pdf`, `html`, `docx`, `odt`.
 
 ## Data files
 
@@ -434,7 +455,7 @@ lst
 ```
 
 ## Data Frames
-- The `R` (composite) data type that is closest to a _spreadsheet_ is the `data frame`.
+- The `R` (composite) data type that is closest to a _spreadsheet_ data structure is the `data frame`.
 - `Data frames` are `lists` whose elements must all be of the _same length_ but not (necessarily) of the same type (unlike `matrices`).
 - They can be manipulated like `matrices` or like `lists`.
 - Check [Ihaka's lecture](https://www.stat.auckland.ac.nz/~stats380/downloads/05-Data-Handling.pdf) on the subject for further details.
@@ -527,9 +548,9 @@ A for loop has the form:
 ```{r for-skeleton, eval=FALSE}
 for(variable in vector) expression
 ```
-The effect of such a loop is to set the value of variable equal to
-each element of the vector in turn, each time evaluating the
-given expression.
+The effect of such a loop is to set the value of `variable` equal to
+each element of the `vector` in turn, each time evaluating the
+given `expression`.
 
 ## For Loop Example 1
 Suppose we have a vector `x` that contains a set of numerical

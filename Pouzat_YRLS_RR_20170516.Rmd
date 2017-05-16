@@ -17,7 +17,7 @@ $G$ is the gain and $\sigma^2_{ro}$ is the _read-out variance_ of the CCD camera
 
 ## The data
 
-Our colleagues from the [Laboratory of Peter Kloppenburg](http://cecad.uni-koeln.de/Prof-Peter-Kloppenburg.82.0.html) the following protocol (from the _Methods_ section of Joucal et al (2010) [Quantitative Estimation of Calcium Dynamics From Ratiometric Measurements: A Direct, Nonratioing Method](http://jn.physiology.org/content/103/2/1130) _Journal of Neurophysiology_ __103(2)__: 1130-1144):
+Our colleagues from the [Laboratory of Peter Kloppenburg](http://cecad.uni-koeln.de/Prof-Peter-Kloppenburg.82.0.html) used the following protocol (from the _Methods_ section of Joucal et al (2010) [Quantitative Estimation of Calcium Dynamics From Ratiometric Measurements: A Direct, Nonratioing Method](http://jn.physiology.org/content/103/2/1130) _Journal of Neurophysiology_ __103(2)__: 1130-1144):
 
 | _Experimental characterization of a CCD camera_. We performed
 | experiments to characterize the gain and readout noise of an Imago/
@@ -32,17 +32,17 @@ Our colleagues from the [Laboratory of Peter Kloppenburg](http://cecad.uni-koeln
 
 ### Getting the data
 
-I have stored these calibration data in [HDF5](https://www.hdfgroup.org/hdf5/) on my website and they can be downloaded at the following address: `http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5`. Using `RMarkdown` we have 2 possibilities to download them, either from the [`Bash shell`](https://en.wikibooks.org/wiki/Bash_Shell_Scripting) using program [`wget`](https://www.gnu.org/software/wget/) as follows:
+I have stored these calibration data in an [HDF5](https://www.hdfgroup.org/hdf5/) file on my website. They can be downloaded from the following address: `http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5`. Using `RMarkdown` we have 2 possibilities to download them, either from the [`Bash shell`](https://en.wikibooks.org/wiki/Bash_Shell_Scripting) using program [`wget`](https://www.gnu.org/software/wget/) as follows:
 ```{bash download-calibration-with-wget,eval=FALSE}
 wget http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5
 ```
 or directly from `R` with function `download.file` as follows:
-```{r download-calibration-with-download.file,eval=FALSE}
+```{r download-calibration-with-download.file,eval=TRUE}
 download.file(url="http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5",
               destfile="CCD_calibration.hdf5")
 ```
 
-Either way, once this is done we can check with `list.files` that the file is indeed on our hard-drive:
+Either way, once this is done we can check in `R` with `list.files` that the file is indeed on our hard-drive:
 ```{r check-calibration-data-on-hd}
 list.files()[grep("*.hdf5$",list.files())]
 ```
@@ -101,9 +101,9 @@ mtext("ADU      ",side=2,las=1,cex=3)
 
 # Model predictions
 
-How can we test $\mathrm{ADU} \sim \mathrm{G}^2 \, \mathrm{F} + \sqrt{\mathrm{G}^2 \, (\mathrm{F}+\sigma_{ro}^2)} \, \epsilon$ ? Or how to set different values for $\mathrm{F}$?
+How can we test $\mathrm{ADU} \sim \mathrm{G} \, \mathrm{F} + \sqrt{\mathrm{G}^2 \, (\mathrm{F}+\sigma_{ro}^2)} \, \epsilon$ ? By setting differnt values for $\mathrm{F}$, but how can we do that?
 
-Let's consider a pixel of our CCD "looking" at a fixed volume fluorescent material. We have two ways of modifying $\mathrm{F}$:
+Let's consider a pixel of our CCD "looking" at a fixed volume of fluorescent material. We have two ways of modifying $\mathrm{F}$:
 
 - Change the intensity $i_{e}$ of the light source exciting the fluorophore.
 - Change the exposure time  $\tau$.
@@ -112,12 +112,12 @@ We can indeed write our $\mathrm{F}$ as:
 \[\mathrm{F} = \phi v c i_{e} \tau \, ,\]
 where
 
-- $v$ is the solution's volume "seen" by a given pixel,
+- $v$ is the fluorophore's volume "seen" by a given pixel,
 - $c$ is the fluorophore's concentration,
 - $\phi$ is the [quantum yield](http://en.wikipedia.org/wiki/Quantum_yield).
 
 
-We introduce a rv $\mathrm{ADU}_{ij}$ for each pixel because it is very difficult (impossible) to have a uniform intensity ($i_e$) and a uniform volume ($v$) and a uniform quantum yield ($\phi$). We have therefore for each pixel:
+We introduce a _random variable_ (rv) $\mathrm{ADU}_{i,j}$ for each pixel because it is very difficult (impossible) to have a uniform intensity ($i_e$) and a uniform volume ($v$) and a uniform quantum yield ($\phi$). We have therefore for each pixel:
 \[\mathrm{ADU}_{i,j} \sim \mathrm{G} \, p_{i,j} \tau + \sqrt{\mathrm{G}^2 \, (p_{i,j} \tau+\sigma_{ro}^2)} \, \epsilon_{i,j}\; ,\] 
 where $p_{i,j} = c \phi_{i,j} v_{i,j} i_{e,i,j}$.
 
@@ -171,8 +171,20 @@ Leading to the following coefficients:
 round(coefficients(varVSmean),digits=3)
 ```
 
+This means that our estimate $\widehat{\mathrm{G}}$ for $\mathrm{G}$ is:
+```{r print-G}
+(G_hat = coefficients(varVSmean)[2])
+```
+
+and our estimate $\widehat{\sigma}^2_{ro}$ for $\sigma^2_{ro}$ is:
+```{r print-S2}
+(S2_hat = coefficients(varVSmean)[1]/G_hat^2)
+```
+
 We should __never__ stop here but at least plot the _normalized residuals_ as a function of the fitted value:
 ```{r norm-resid-vs-fitted}
 plot(varVSmean$fitted.values,varVSmean$residuals*sqrt(99/2)/ADU.v,pch=".",
      xlab="Fitted values",ylab="Normalized residuals")
 ```
+
+I have just scratched the surface of what a proper analysis of this data set should be. If you want to learn more, check my ENP course: <https://zenodo.org/record/18691>.
