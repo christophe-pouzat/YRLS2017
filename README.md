@@ -1,7 +1,7 @@
 # YRLS2017: R for statistics and reproducible research in the life sciences
 `R` and `RR` (Reproducible Research) course material for the [YRLS](http://yrls.fr/) 2017 meeting.
 
-The course, _R for statistics and reproducible research in the life sciences_, introduced the following topics:
+The course, _R for statistics and reproducible research in the life sciences_, introduces the following topics:
 
 - What's reproducible research?
 - What is R
