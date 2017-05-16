@@ -1,0 +1,900 @@
+---
+title: "R for statistics and reproducible research in the life sciences"
+author: "Christophe Pouzat (christophe.pouzat@parisdescartes.fr), Université Paris-Descartes & CNRS"
+date: "May 16 2017"
+output: ioslides_presentation
+---
+
+# Overview
+
+## What are we going to talk about?
+
+- What is reproducible research?
+- What is R?
+- Why R? R vs Python / matlab / Java / C etc
+- How to get R?
+- Learning R
+- R syntax and use basics
+- A simple example of reproducible analysis with R
+
+# What is reproducible research?
+
+## What is "Reproducible Research"?
+
+__Reproducible Research__ (`RR`) or __reproducible data analysis__ is an approach aiming at complementing classical printed scientific articles with __everything__ required to independently reproduce the results they present.
+
+"Everything" covers here: 
+
++ the data, 
++ the computer codes,
++ a precise description of how the code was applied to the data. 
+
+The "movement" started with what Economists have been calling __replication__ since the early eighties to reach what is now called __reproducible research__ in computational data analysis oriented fields like statistics and signal processing.
+
+## One Remark
+
+Results reproducibility in an experimental science implies that:
+
+1. __the data are reproducible__,
+2. as well as the analysis.
+
+Strictly speaking, only the second point is going to be discussed here; but a reproducible analysis __implies raw data access__. Accessible raw data become open to criticism and comparable. __That should help progress on the first point__.
+
+## From Theory to Practice: the tools
+Once convinced by the _RR_ paradigm as are usually students and young researchers---established ones in my field at least tend to be less convinced---we must find the tools to go from theory to practice:
+
+- Tools are critical for a systematic implementation of the _RR_.
+- The first approaches like the [**Stanford Exploration Project**](http://sepwww.stanford.edu/doku.php?id=sep:research:reproducible:seg92) one, based on $\LaTeX{}$, `C` and `Fortran` codes and a compilation controlled by `make`, are too heavy for _my_ daily work made of a lot of exploratory analysis.
+- Something akin to a **sophisticated notebook** is much more attractive.
+
+## Lightweight markup languages
+
+A key element of a "sophisticated notebook" is a [lightweight markup language](https://en.wikipedia.org/wiki/Lightweight_markup_language), that is a way to structure and emphasize text that is easy/quick to type and read. 
+
+I'm using two of those:
+
+- [Markdown](https://en.wikipedia.org/wiki/Markdown) and its [Pandoc](http://pandoc.org/) extension.
+- [orgmode](http://orgmode.org/) a `mode` of the  [emacs](https://www.gnu.org/software/emacs/tour/) editor.
+
+I will focus on `Markdown` in the sequel although I'm mainly using `org`--it is "harder" to use since it requires `emacs`--. This presentation was prepared with `Markdown`.
+
+## Markdown is easy to learn
+
+You write                    | You get
+---------------------------- | ---------------------------
+\_italic\_ or \*italic\*     | _italic_
+\_\_bold\_\_ or \*\*bold\*\* | **bold**
+\`monospace\`                | `monospace`
+χ\^2\^                       | χ^2^
+H\~2\~O                      | H~2~O
+\~\~strikethrough\~\~        | ~~strikethrough~~
+a `[link](www.gnu.org)`      | a [link](www.gnu.org)
+
+*** 
+
+First level sections are defined by:
+```
+# Title of level 1 section
+```
+Second level sections by:
+```
+## Title of level 2 section
+```
+"Complicated" equations are typed with the [$\LaTeX{}$](https://en.wikibooks.org/wiki/LaTeX) syntax (that's the hard part)--simple ones are entered with [UTF-8](http://www.utf8-chartable.de/) which is fully supported--, so you type 
+```
+$\sqrt{a^2+b^2}$
+``` 
+to get 
+
+$\sqrt{a^2+b^2}$
+
+## Including code in the notebook
+
+With a markup language like `Markdown` we have a way to easily and efficiently describe/explain what we do when we analyze data. 
+
+We also want a way to include (computer) code in our notebook so that instead of the "classical" scientific document: 
+```
+text + figures and tables
+```
+we get: 
+```
+text + code that generates the figures and tables
+```
+
+***
+
+There are now several "sophisticated notebook" working solutions available. The three I personally regularly use are:
+
+- [`orgmode`](http://orgmode.org/) and [Babel](http://orgmode.org/worg/org-contrib/babel/) with  [emacs](https://www.gnu.org/software/emacs/tour/).
+- The [`jupyter notebook`](http://jupyter.org/), a `Python` based interface that runs a web server--you are then doing your data analysis with your [favorite language](https://github.com/jupyter/jupyter/wiki/Jupyter-kernels) within your web browser--.
+- [`R Markdown`](http://rmarkdown.rstudio.com/) with [RStudio](https://www.rstudio.com/products/rstudio/) or any text editor--this is what we will explore further later on--.
+
+## `orgmode`
+
+- It's the most powerful solution of the three.
+- More difficult to use because one must learn `emacs` first.
+- The `org` syntax is different from the `Markdown` one but as simple.
+- Many different (programming) languages can be used in the same notebook.
+
+## `jupyter notebook`
+
+- It's `Python` based and enjoys a strong developer community.
+- It uses `Markdown`.
+- A single (programming) language can be used in a given notebook.
+- The web browser interface is very easy to use (but the editorial support is limited).
+
+## `RMarkdown`
+
+- It uses `Markdown`.
+- Developed as an open-source project by a now large company.
+- A limited amount of different (programming) languages can be used in the same notebook (`R`, `Python`, `Bash`).
+- The most popular solution (by far!) with the `R` community.
+
+***
+Part of an `RMarkdown` file will look like:
+
+<pre><code># Generate 100 Gaussian random numbers
+This is how you can generate 100 _random numbers_
+with a Gaussian distribution in `R`:</code></pre>
+<pre><code>```{r rng-example}
+gogo = rnorm(100)
+```</code></pre>
+
+<pre><code># Plot the numbers
+We can plot our random numbers with</code></pre>
+<pre><code>```{r rng-plot}
+plot(gogo)
+```</code></pre>
+
+## Data files
+
+- Before "jumping into `R`" the issue of data file format for RR should be discussed.
+- Ideally it would be nice to use a format that is not bound to a specific analysis software and that's versatile enough.
+- The astrophysics community has developed two such formats:
+    + [FITS](https://fits.gsfc.nasa.gov/) _Flexible Image Transport System_ (it not limited to images!)
+    + [HDF5](https://www.hdfgroup.org/hdf5/) _Hierarchical Data Format_
+
+***
+
+- Both of these formats allow us to store _within a single file_ data from different "sources", like an electrophysiological recording and a stack of fluorescence images. 
+- `FITS` is older and "simpler" than `HDF5`.
+- `HDF5` became the base of several software data format like `Matlab` and `Octave`.
+- `HDF5` is better supported in `R` and that's the format we will later use in our RR example. 
+
+# What is R?
+
+## From the `FAQ` page
+
+`R` is an open source _programming language_ distributed under the GPL license described as follows on the [FAQ](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-is-R_003f):
+
+~~~
+R is a system for statistical computation and graphics. 
+It consists of a language plus a run-time environment 
+with graphics, a debugger, access to certain system 
+functions,  and the ability to run programs stored in 
+script files. 
+[...]
+R was initially written by Ross Ihaka and Robert Gentleman 
+at the Department of Statistics of the University of Auckland 
+in Auckland, New Zealand. In addition, a large group of 
+individuals has contributed to R by sending code and bug 
+reports.
+
+Since mid-1997 there has been a core group (the “R Core Team”) 
+who can modify the R source code archive.
+~~~
+
+***
+
+~~~
+The design of R has been heavily influenced by two existing 
+languages: Becker, Chambers & Wilks’ S and Sussman’s Scheme. 
+Whereas the resulting language is very similar in appearance 
+to S, the underlying implementation and semantics are derived 
+from Scheme.
+
+The core of R is an interpreted computer language which allows 
+branching and looping as well as modular programming using 
+functions. Most of the user-visible functions in R are written 
+in R. It is possible for the user to interface to procedures 
+written in the C, C++, or FORTRAN languages for efficiency. The 
+R distribution contains functionality for a large number of 
+statistical procedures. Among these are: linear and generalized 
+linear models, nonlinear regression models, time series analysis, 
+classical parametric and nonparametric tests, clustering and 
+smoothing. There is also a large set of functions which provide 
+a flexible graphical environment for creating various kinds of 
+data presentations. Additional modules (“add-on packages”) are 
+available for a variety of specific purposes. 
+~~~
+
+# Why R? R vs Python / matlab / Java / C etc
+
+## R vs Python
+
+Like `R`, `Python` (__with__ `numpy`, `scipy` and `matplotlib`) is:
+
+- an open source _programming language_ whose license is compatible with, but more complicated than, the GPL;
+- coming with an interactive run-time environment;
+- coming with a language definition--several implementations are possible and do exist--;
+- extensible by interfacing it with `C`, `C++`, `fortran` codes, etc.
+
+If you want a "general and simple" programming language you should go for `Python`--as soon as you do some "serious" programming, you should know its basics--, **if you want to do statistics, use `R`**.
+
+## What about `Matlab`?
+
+`Matlab` is:
+
+- a proprietary software for which you have to pay;
+- coming with an interactive run-time environment;
+- not coming with a language definition making it hard to develop clones like [Gnu Octave](https://www.gnu.org/software/octave/);
+- extensible by interfacing it with `C`, `C++`, `fortran` codes, etc.
+
+If you want to do reproducible research you should use open source software...
+
+## Excel
+
+`Excel` is
+
+- a proprietary software for which you have to pay;
+- terribly bad for statistics see [_On the Numerical Accuracy of Spreadsheets_](https://www.jstatsoft.org/article/view/v034i04);
+- terribly bad for graphics see [_Problems With Using Microsoft Excel for Statistics_](https://www.scribd.com/document/38605554/ExcelStatProbs).
+
+Whatever you want to do, **do not use it**!
+
+## Compiled languages `C`, `JAVA`?
+
+- Common compiled languages are running fast (because of the compilation) but codes are slow to develop (they don't come with an interactive run-time environment).
+- They are typed: users must specify what kind of value, `integer`, `floating point number`, `character` is assigned to each variable.
+- They often require an explicit memory management by the programmer.
+- They are "low" level: you cannot perform a linear regression with a single line of code.
+
+Learning such language usually involves a real effort, but if you need fast or stable implementations or if you are dealing with very large datasets, you are likely to need them at a point.
+
+# How to get R?
+
+## The Comprehensive R Archive Network (CRAN)
+
+- Official `R` distributions (binary for Windows, MacOS, Linux and source) can be obtained from the `CRAN`: <https://cran.r-project.org/>.
+- Most Linux distributions have it available from the package manager (but the available version can be quite old).
+- User contributed packages are available from a dedicated section of the `CRAN`: <https://cran.r-project.org/web/packages/index.html>.
+- A lot of high quality documentation is also available from the `CRAN`: <https://cran.r-project.org/other-docs.html>.
+
+## Other repositories
+
+- `Bioconductor` (<http://www.bioconductor.org/>) hosts many user contributed packages mostly related to genomics and bioinformatics.
+- `Github` (<https://github.com/>) hosts every day more source codes of user contributed packages.
+- `rOpenSci` (<https://ropensci.org/>) keeps a list of packages related to "open science" and "reproducible research".
+- `AWESOME R` (<https://awesome-r.com/>) keeps a list of _selected_ packages and links.
+
+## Interfaces
+
+`R` can be used through many "interfaces":
+
+- a command-line window opened from a terminal;
+- with [emacs](https://www.gnu.org/software/emacs/tour/) and [Emacs Speaks Statistics](http://ess.r-project.org/) (ESS);
+- [R Commander](http://socserv.mcmaster.ca/jfox/Misc/Rcmdr/), the default interface on Windows;
+- [RStudio](https://www.rstudio.com/products/rstudio/) a powerful Integrated Development Environment (IDE)--now probably the most popular interface--;
+- the [jupyter notebook](http://jupyter.org/), a `Python` based interface that runs a web server--you are then using `R` with your web browser--.
+
+# Learning R
+
+## Web resources for learning `R`
+
+- Ross Ihaka's course _Statistical Computing_ (<https://www.stat.auckland.ac.nz/~stats782/>), by far the best "bottom-up" course. __Most of the next section comes from this course__.
+- Ross Ihaka's course _Statistical Graphics_ (<https://www.stat.auckland.ac.nz/~ihaka/courses/787/>), a "must read" on graphics even if you are not an `R` user.
+- [_An Introduction to R: Software for Statistical Modelling & Computing_](https://cran.r-project.org/doc/contrib/Kuhnert+Venables-R_Course_Notes.zip) by Petra Kuhnert and Bill Venables; comprehensive (a free version of Venables and Ripley _Modern Applied Statistics with S_).
+- [The R journal](https://journal.r-project.org/) publishes many _accessible_ descriptions of user contributed packages.
+- [The journal of Statistical Software](https://www.jstatsoft.org/index) publishes many _detailed_ descriptions of user contributed packages.
+
+## Books
+
+A "personal" short list (only books I use and I like are mentioned, there are for sure many other good books around!):
+
+- [_The R Software_](http://biostatisticien.eu/springeR/index-en.html) by Pierre Lafaye de Micheaux, Rémy Drouilhet and Benoît Liquet, Springer 2014; translations in French (in fact the original version), Chinese and Indonesian are available, the best single book on `R` I know of.
+- _R in a Nutshell_ by Joseph Adler, O'Reilly 2010; a good reference.
+- _Data Analysis with Open Source Tools_ by Philipp K. Janert, O'Reilly 2010; a useful book with a wider scope, introduces `R`, `Python`, `gnuplot`, `sage`, the `Gnu Scientific Library` (GSL, a `C` library).
+
+# R syntax and use basics
+
+```{r set-language, echo=FALSE, results='hide'}
+Sys.setlocale("LC_MESSAGES","C")
+```
+
+## Some conventions
+
+I present here only the "command-line" use, that is, an approach __that can always be used__ independently of the interface. This means that an interface (like `RStudio`) will often allow you to do the same thing by "pointing and clicking", this is a tempting solution when you're starting but one you pay at a rather high cost later on since it is very inefficient...
+
+Typically after starting `R`, the command-line indicates it is expecting something by showing a prompt:
+```
+>
+```
+In the examples I will show, the prompt won't appear (but what I type appears in a gray background) like here:
+```{r example-input, eval=FALSE}
+x = c(1,2,3,4,5)
+```
+## Quitting `R` 
+
+You quit `R` by calling function `quit`:
+```{r example-quit(), eval=FALSE}
+quit()
+```
+or, its short name, `q`:
+```{r example-q(), eval=FALSE}
+q()
+```
+The parenthesis `()` are __required__ even when calling a function that doesn't take any argument. This is how you're telling to the `R` interpreter that you are calling a function. 
+
+When `R` quits it proposes you to save the variables and functions of the current session for later use.
+
+## Getting help
+
+If you forgot how to use function `quit`, type:
+
+```{r help-quit, eval=FALSE}
+?quit
+```
+To get access to the general help system type:
+```{r help.start, eval=FALSE}
+help.start()
+```
+and the help will appear in your browser.
+
+## `Tab` completion
+
+Essentially every current `R` interface provides `Tab` key completion. That is you start typing something like:
+```{r help-completion, eval=FALSE}
+help
+```
+and you press the `Tab` key just after the `p`. A list of possible completions from which you can select will appear. 
+
+__Get used to this feature it will save you a lot of time__.
+
+## `R` looks like a calculator
+
+Used from the command-line `R` behaves like a calculator, it waits for "questions" and prints "answers" (what is prefixed here by `##`):
+```{r addition-example}
+1.5 + 2.75
+```
+The basic (and not so basic) mathematical functions are available:
+```{r sqrt-example}
+sqrt(10)
+```
+
+## Vectors in `R` 
+
+Vectors (composite `objects` with elements of the same type) can be created with the `c` function:
+```{r vector1}
+c(0,1,2,3,4,5,6,7,8,9)
+```
+or with the `:` operator:
+```{r vector2}
+0:24
+```
+The number between `[]` in the output gives the index of the value immediately next to its right.
+
+## Operations on vectors
+
+Usual operations/functions when called on vectors are applied element per element:
+```{r sqrt-vector}
+sqrt(0:10)
+```
+
+***
+If two vectors of different lengths (number of elements) are added, the shortest is elongated by following the "recycling rule", that is:
+```{r vector-add1}
+c(1,2,3,4,5) + c(1,2,3)
+```
+is the same as:
+```{r vector-add2}
+c(1,2,3,4,5) + c(1,2,3,1,2)
+```
+## Storing temporary results: variables
+
+In order to do useful work, we often need to define variables, that is names standing for values like:
+```{r variable-definition}
+y <- c(1,2,3,4,5)
+```
+In `R` both `<-` and `=` can be used to assign values to variables (more properly called `symbols` in `R`). So the following expression is equivalent to the former:
+```{r variable-definition2}
+y = c(1,2,3,4,5)
+```
+Then `y` stands for its value in other expressions:
+```{r variable-definition-use}
+y^2
+```
+
+***
+Allowed names for variables/symbols are described in the `Details` section of the help of `make.names`, so type:
+```{r help-make.names}
+?make.names
+```
+And you will read:
+```
+A syntactically valid name consists of letters, numbers and the
+dot or underline characters and starts with a letter or the dot
+not followed by a number.  Names such as ‘".2way"’ are not valid,
+and neither are the reserved words.
+```
+
+## Lists
+
+The elements of vectors must all be of the same basic type. Lists provide a way of storing things of different types in a
+single object.
+```{r list-expl}
+lst = list(10, "eleven", TRUE)
+```
+This list has three elements. The first element is the number `10`, the second is the character string `"eleven"` and the third
+is the logical value `TRUE`.
+
+## Printing Lists
+The elements of lists are printed in a special way to make their structure clearer.
+```{r list-print}
+lst
+```
+
+## Data Frames
+- The `R` (composite) data type that is closest to a _spreadsheet_ is the `data frame`.
+- `Data frames` are `lists` whose elements must all be of the _same length_ but not (necessarily) of the same type (unlike `matrices`).
+- They can be manipulated like `matrices` or like `lists`.
+- Check [Ihaka's lecture](https://www.stat.auckland.ac.nz/~stats380/downloads/05-Data-Handling.pdf) on the subject for further details.
+
+
+## Expressions and Compound Expressions
+
+R programs are made up of expressions. These can either be
+simple expressions (of the type we’ve seen already) or
+compound expressions consisting of simple expressions
+separated by semicolons or newlines and grouped within
+braces.
+
+```
+{ expr_1 ; expr_2 ; ... ; expr_n }
+```
+
+Every expression in R has a value and the value of the
+compound expression above is the value of expr\_n. E.g.
+
+```{r example-compound}
+(x = { 10 ; 20 })
+```
+
+***
+It is possible to have assignments within compound
+expressions and the values of the variables that this produces
+can be used in later expressions.
+```{r assignment-within-compound1}
+z = { x = 10 ; y = x^2; x + y }
+```
+```{r assignment-within-compound2}
+x
+```
+```{r assignment-within-compound3}
+y
+```
+```{r assignment-within-compound4}
+z
+```
+
+## If-Then-Else Statements
+
+If-then-else statements make it possible to choose between
+two (possibly compound) expressions depending on the value
+of a (logical) condition.
+```{r if-skeleton, eval=FALSE}
+if (condition) expr_1 else expr_2
+```
+If condition is true then expr_1 is evaluated otherwise expr_2 is
+executed.
+
+__Notes__
+
+1. Only the first element in condition is checked.
+2. The value of the whole expression is the value of whichever expression was executed.
+
+## If-Then-Else Examples
+The expression
+```{r if-example1, eval=FALSE}
+if (x > 0) y = sqrt(x) else y = -sqrt(-x)
+```
+provides an example of an if-then-else statement which will
+look familiar to `Java`, `C`, or `C++` programmers.
+
+The statement can however be written more succinctly in R as
+```{r if-example2, eval=FALSE}
+y = if (x > 0) sqrt(x) else -sqrt(-x)
+```
+which will look familiar to `Scheme` programmers.
+
+## If-then Statements
+
+There is a simplified form of if-then-else statement which is
+available when there is no expression_2 to evaluate. This
+statement has the general form
+```{r if-then1, eval=FALSE}
+if (condition) expression
+```
+and is completely equivalent to the statement
+```{r if-then2, eval=FALSE}
+if (condition) expression else NULL
+```
+
+## For Loops
+As part of a computing task we often want to repeatedly carry
+out some computation for each element of a vector or list. In R
+this is done with a for loop.
+A for loop has the form:
+```{r for-skeleton, eval=FALSE}
+for(variable in vector) expression
+```
+The effect of such a loop is to set the value of variable equal to
+each element of the vector in turn, each time evaluating the
+given expression.
+
+## For Loop Example 1
+Suppose we have a vector `x` that contains a set of numerical
+values, and we want to compute the sum of those values. One
+way to carry out the calculation is to initialise a variable to
+zero and to add each element in turn to that variable.
+```{r for-loop1,eval=FALSE}
+s = 0
+for(i in 1:length(x))
+s = s + x[i]
+```
+The effect of this calculation is to successively set the variable
+`i` equal to each of the values `1, 2, . . . , length(x)`, and for
+each of the successive values to evaluate the expression
+`s = s + x[i]`.
+
+## For Loop Example 2
+The previous example is typical of loops in many computer
+programming languages, but R does not need to use an integer
+_loop variable_. The loop could instead be written
+```{r for-loop2,eval=FALSE}
+s = 0
+for(elt in x)
+s = s + elt
+```
+This is both simpler and more efficient.
+
+## While Loops
+For-loops evaluate an expression a fixed number of times. It
+can also be useful to repeat a calculation until a particular
+condition is false. A _while-loop_ provides this form of control
+flow.
+```{r while-skeleton, eval=FALSE}
+while (condition) expression
+```
+Again, `condition` is an expression which must evaluate to a
+simple logical value, and `expression` is a simple or compound
+expression.
+
+## While Loop Example
+As a simple example, consider the problem of summing the
+integers until the sum exceeds a particular threshold. For a
+threshold of 100, we can do this as follows.
+```{r while-example}
+threshold = 100
+n = 0
+s = 0
+while (s <= threshold) {
+	n = n + 1
+	s = s + n
+}
+c(n, s)
+```
+
+## Functions
+
+- R differs from many other statistical software systems because it is designed to be extensible. Users can add new functionality to the system in way which makes it impossible to distinguish that functionality from the capabilities shipped with the system.
+- Additional functionality is added to R by defining new _functions_.
+- Functions take a number of values as _arguments_ and return a single _value_.
+
+## Defining Functions
+Here is a function which squares its argument.
+```{r square-definition}
+square = function(x) x * x
+```
+It works just like any other R function.
+```{r square-use1}
+square(10)
+```
+Because the `*` operator acts element-wise on vectors, the new
+square function will act that way too.
+```{r square-use2}
+square(1:10)
+```
+
+## Functions Defined in Terms of Other Functions
+Once defined, the `square` function can be used in other
+function definitions.
+```{r sumsq-definition1}
+sumsq = function(x) sum(square(x))
+```
+```{r sumsq-use}
+sumsq(1:10)
+```
+```{r sumsq-definition2}
+sumsq = function(x) sum(square(x - mean(x)))
+sumsq(1:10)
+```
+
+## Functions in General
+In general, an R function definition has the form:
+```{r function-skeleton, eval=FALSE}
+function (arglist) body
+```
+where
+
+- `arglist` is a (comma separated) list of variable names known as the _formal arguments_ of the function,
+- `body` is a simple or compound expression known as the _body_ of the function.
+
+Functions are usually, but not always, assigned a name so that they can be used in later expressions.
+
+## A Simple Example
+Here is a simple function which, given the values `a` and `b`,
+computes the value of $\sqrt{a^2+b^2}$.
+```{r hypot-definition}
+hypot = function(a, b) sqrt(a^2 + b^2)
+```
+- The formal arguments to the function are `a` and `b`.
+- The body of the function consists of the simple expression `sqrt(a^2 + b^2)`.
+- The function has been assigned the name “`hypot`.”
+
+## Evaluation of Functions
+Function evaluation takes place as follows:
+
+1. Temporarily create a set of variables by associating the arguments passed to the function with the variable names in _arglist_.
+2. Use these variable definitions to evaluate the function body.
+3. Remove the temporary variable definitions.
+4. Return the computed values.
+
+## Evaluation Example
+Evaluating the function call
+```{r hypot-evaluation, eval=FALSE}
+hypot(3, 4)
+```
+takes place as follows:
+
+1. Temporarily create variables `a` and `b`, which have the values `3` and `4`.
+2. Use these values to compute the value (5) of `sqrt(a^2 + b^2)`.
+3. Remove the temporary variable definitions.
+4. Return the value 5.
+
+## Optional Arguments
+When defining functions arguments can be given _default_ values and become _optional arguments_ like `b` here:
+```{r hypot-definition2}
+hypot = function(a, b=4) sqrt(a^2 + b^2)
+```
+Giving a value for these arguments is not necessary anymore:
+```{r hypot-use2}
+hypot(3)
+```
+If we want these arguments to have a value different from their default we obviously have to be specific:
+```{r hypot-use3}
+hypot(3,5)
+```
+
+## Argument Matching
+- Because it is not necessary to specify all the arguments to `R` functions, it is important to be clear about which argument corresponds to which formal parameter of the function.
+- This can be done by providing names for the arguments in a function call.
+- When names are provided for arguments, they are used in preference to position which matching up formal and actual arguments.
+
+## Argument Matching Examples
+
+```{r arg-match-ex1}
+hypot(3,5)
+```
+
+```{r arg-match-ex2}
+hypot(b=5,3)
+```
+
+```{r arg-match-ex3}
+hypot(b=5,a=3)
+```
+
+## What to do to get the `arglist`?
+
+Call function `args` on your function:
+```{r args-example}
+args(hypot)
+```
+
+## What to do to Debug a Function?
+
+Place a _breakpoint_ by calling function `browser` within your function _body_:
+```{r browser-example, eval=FALSE}
+hypot = function(a, b=4) {
+	browser()
+	sqrt(a^2 + b^2)
+}
+```
+read the documentation of `browser` to know the few commands to use within the debugger:
+```{r help-browser, eval=FALSE}
+?browser
+```
+call your function as usual, it will stop on the line where `browser` is called:
+```{r debug-hypot, eval=FALSE}
+hypot(-3)
+```
+
+## Simple Graphics
+The function `plot` provides basic graphics facilities. The function call
+```{r plot-call, eval=FALSE}
+plot(x, y)
+```
+produces a scatter plot, with the points located at the coordinates in the variables `x`, `y`.
+
+- If only one argument is provided it is used as the `y` variable. The `x` variable is assumed to have the value `1:length(y)`.
+- If an additional argument, `type="l"`, is provided in the call, the points are joined with straight lines.
+- If an additional argument, `type="b"`, is provided in the call, both points and lines are drawn.
+
+***
+
+```{r plot1, echo=FALSE}
+with(cars,plot(speed, dist,xlab="x",ylab="y",main="plot(x,y)"))
+```
+
+***
+
+```{r plot2, echo=FALSE}
+with(cars,plot(speed, dist,xlab="x",ylab="y",type="l",main='plot(x,y,type="l")'))
+```
+
+***
+
+```{r plot3, echo=FALSE}
+with(cars,plot(speed, dist,xlab="x",ylab="y",type="b",main='plot(x,y,type="b")'))
+```
+
+## Color Control In R
+There are a variety of ways to specify a colour in `R`: a small positive integer; a name; the amount of Red, Green and Blue which are mixed to produce the color.
+
+Some valid color specifications in `R` are:
+
+Argument           |  Result
+---------          |  -------------
+`col=2`            |  Red
+`col="purple"`     |  Purple
+`col="#FFFF00"`    |  Yellow
+`col=rgb(1,0,1)`   |  Magenta
+`col=hsv(1/12,1,1)`|  Orange(ish)
+
+## Control of Plotting Symbols
+
+- Plotting symbols are specified by setting the `pch=` argument to an integer in the range from 0 to 25.
+- 0 corresponds to the “blank” or invisible symbol.
+- The symbols corresponding to the values 1 through 14 are drawn with lines.
+- The symbols corresponding to the values 15 through 20 are drawn in solid colors.
+-  The symbols corresponding to the values 21 through 25 can be filled with a solid color and have their borders drawn with a different color.
+
+***
+
+```{r plotting-symbols, echo=FALSE, fig.height=7.5, fig.width=7.5}
+par(cex=2,mar=c(2,2,4,2))
+plot(1:5,1:5,type="n",axes=FALSE,ylim=c(0,5),
+     xlab="",ylab="",main="R Plotting Symbols")
+points(1:5,rep(5,5),pch=1:5)
+points(1:5,rep(4,5),pch=5+(1:5))
+points(1:5,rep(3,5),pch=10+(1:5))
+points(1:5,rep(2,5),pch=15+(1:5))
+points(1:5,rep(1,5),pch=20+(1:5))
+for (i in 1:5) text(i,4.6,paste(i))
+for (i in 1:5) text(i,3.6,paste(i+5))
+for (i in 1:5) text(i,2.6,paste(i+10))
+for (i in 1:5) text(i,1.6,paste(i+15))
+for (i in 1:5) text(i,0.6,paste(i+20))
+```
+
+## Line Customisation
+The line type can be specified with an argument of the form `lty=type`. The line type can be specified by name:
+```{r line-spec, eval=FALSE}
+"solid", "dashed", "dotted", "dotdash", "longdash", "twodash"
+```
+or as a hexadecimal specification of the form `"DUDU"`, where `D`
+represents a distance drawn with “pen down” and `U` is a distance with “pen up.”
+
+- `"1111"` high density dots
+- `"1313"` spaced-out dots
+- `"1333"` dot-dash
+- `"3373"` short-dash, longdash
+
+The widths of lines can be specified with the parameter `lwd=wd`, with thicknesses specified relative to the default of 1.
+
+## Annotation
+The `plot` function has arguments which can be used to customized the labelling on a plot.
+
+- `main=` an overall title for the plot
+- `xlab=` a label for the x-axis
+- `ylab=` a label for the y-axis
+- `sub=` a subtitle to be placed below the plot
+
+Annotation can be added to an existing plot by calling the function `title` with the same arguments.
+
+## An Example
+
+```{r plot-cars-example1, eval=FALSE}
+plot(cars$speed, cars$dist,
+     pch = 19, col = "blue",
+     main = "Car Stopping Distances",
+     xlab = "Speed (mph)",
+     ylab = "Stopping Distance (ft)",
+     sub = "(Note that this is very old data)")
+```
+
+***
+
+```{r plot-cars-example2, echo=FALSE}
+plot(cars$speed, cars$dist,
+     pch = 19, col = "blue",
+     main = "Car Stopping Distances",
+     xlab = "Speed (mph)",
+     ylab = "Stopping Distance (ft)",
+     sub = "(Note that this is very old data)")
+```
+
+## Customising Plot Axes
+The following plot arguments make it possible to customise a plot’s axes.
+
+- `xlim` limits on the x axis
+- `ylim` limits on the y axis
+- `log` which axes are logarithmic (e.g. `"x"`, `"xy"`).
+- `asp` ratio of _y_ distances to _x_ distances
+
+The main use of `asp` is `asp=1` which means that equal data units on the x and y axes are represented by equal distances on screen.
+
+## Adding to Plots
+The following functions can be used to add to existing plots.
+
+- `points` draw points
+- `lines` draw connected line segments
+- `abline` add a straight line to a plot
+- `segments` draw disconnected line segments
+- `arrows` add arrows to a plot
+- `rect` add rectangles to a plot
+- `polygon` add polygons to a plot
+- `text` add text to a plot
+- `axis` add axis to a plot
+
+## Building Plots
+The following example shows how plots can be built up incrementally from component parts. The initial `plot` call
+simply establishes an empty plotting region and the other function calls add graphical elements to it.
+
+```{r plot-from-scratch1, eval=FALSE}
+x = seq(-1, 1, length = 1001)
+y = x^3
+plot(x, y, type = "l", axes = FALSE, ann = FALSE)
+axis(1, at = c(-1, 1), pos = 0)
+axis(2, at = c(-1, 1), pos = 0, las = 1)
+lines(x, y, col = "green4", lwd = 2)
+title(main = "The graph of y = x^2")
+title(xlab = "x", ylab = "y")
+```
+
+***
+
+```{r plot-from-scratch2, echo=FALSE, fig.height=6.0, fig.width=6.0}
+x = seq(-1, 1, length = 1001)
+y = x^3
+plot(x, y, type = "l", axes = FALSE, ann = FALSE)
+axis(1, at = c(-1, 1), pos = 0)
+axis(2, at = c(-1, 1), pos = 0, las = 1)
+lines(x, y, col = "green4", lwd = 2)
+title(main = "The graph of y = x^2")
+title(xlab = "x", ylab = "y")
+```
+
+
+
+
+# A simple example of reproducible analysis with R
+## CCD calibration: a simple RR example
+
+- We will consider the validation of a model of `CCD` camera.
+- This model establishes a relation between the fluorescence intensity of a source, `F`, and the statistics of the output of the `CCD` chip, `ADU`.
+- This validation will also allow us to _calibrate_ our `CCD` camera that is to estimate its _gain_, `G`, and its _read-out variance_, $\sigma^2_{ro}$.
+
+The model we want to check is:
+$$\mathrm{ADU} \sim \mathcal{N}\left(\mathrm{G} \mathrm{F}, \mathrm{G}^2 (\mathrm{F} + \sigma^2_{ro})\right)\, .$$
+In Words: $\mathrm{ADU}$ is a _random variable_ with a Gaussian distribution whose mean is $\mathrm{G} \mathrm{F}$ and whose variance is $\mathrm{G}^2 (\mathrm{F} + \sigma^2_{ro})$.

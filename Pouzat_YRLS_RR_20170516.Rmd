@@ -1,0 +1,178 @@
+---
+title: "An exemple of reproducible research with `R`"
+author: "Christophe Pouzat (christophe.pouzat@parisdescartes.fr), Université Paris-Descartes & CNRS"
+date: "May 16 2017"
+output: html_document
+---
+
+# The problem
+
+## The Model to check
+
+The model we want to check is:
+$$\mathrm{ADU} \sim \mathcal{N}\left(\mathrm{G} \mathrm{F}, \mathrm{G}^2 (\mathrm{F} + \sigma^2_{ro})\right)\, .$$
+In Words: $\mathrm{ADU}$ is a _random variable_ with a Gaussian distribution whose mean is $\mathrm{G} \mathrm{F}$ and whose variance is $\mathrm{G}^2 (\mathrm{F} + \sigma^2_{ro})$.
+
+$G$ is the gain and $\sigma^2_{ro}$ is the _read-out variance_ of the CCD camera.
+
+## The data
+
+Our colleagues from the [Laboratory of Peter Kloppenburg](http://cecad.uni-koeln.de/Prof-Peter-Kloppenburg.82.0.html) the following protocol (from the _Methods_ section of Joucal et al (2010) [Quantitative Estimation of Calcium Dynamics From Ratiometric Measurements: A Direct, Nonratioing Method](http://jn.physiology.org/content/103/2/1130) _Journal of Neurophysiology_ __103(2)__: 1130-1144):
+
+| _Experimental characterization of a CCD camera_. We performed
+| experiments to characterize the gain and readout noise of an Imago/
+| SensiCam CCD camera (Till Photonics, Gräfelfing, Germany). 
+| Fluorescence measurements were made using a fluorescent plastic slide
+| (Chroma-Gesellschaft, Stuttgart, Germany). Ten exposure times were
+| used, from 10 to 100 ms. For each duration, 100 consecutive measurements 
+| were performed with a cycle time of 200 ms. Means and
+| variances were calculated on the 100 measurements for each pixel and
+| then averaged over the 60 x 80 pixels of the camera. The 10 variances
+| were then linearly fitted against the corresponding 10 means. 
+
+### Getting the data
+
+I have stored these calibration data in [HDF5](https://www.hdfgroup.org/hdf5/) on my website and they can be downloaded at the following address: `http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5`. Using `RMarkdown` we have 2 possibilities to download them, either from the [`Bash shell`](https://en.wikibooks.org/wiki/Bash_Shell_Scripting) using program [`wget`](https://www.gnu.org/software/wget/) as follows:
+```{bash download-calibration-with-wget,eval=FALSE}
+wget http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5
+```
+or directly from `R` with function `download.file` as follows:
+```{r download-calibration-with-download.file,eval=FALSE}
+download.file(url="http://xtof.disque.math.cnrs.fr/data/CCD_calibration.hdf5",
+              destfile="CCD_calibration.hdf5")
+```
+
+Either way, once this is done we can check with `list.files` that the file is indeed on our hard-drive:
+```{r check-calibration-data-on-hd}
+list.files()[grep("*.hdf5$",list.files())]
+```
+
+### Loading the data into `R`
+
+There are two libraries for dealing with `HDF5` files in `R`:
+
+- [`rhdf5`](http://www.bioconductor.org/packages/release/bioc/html/rhdf5.html)
+- [`h5`](https://cran.r-project.org/package=h5)
+
+The first is on [Bioconductor](http://www.bioconductor.org/) and is installed as follows:
+```{r install-rhdf5, eval=FALSE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("rhdf5")
+```
+
+The second in on the `CRAN` and is intalled with the "usual proccedure":
+```{r install-h5, eval=FALSE}
+install.packages("h5")
+```
+
+We are going to use `rhdf5` here and we start by loading it in our `searchpaths`:
+```{r library-rhdf5}
+library(rhdf5)
+```
+
+We can then see its overall structure with:
+```{r h5ls-calibration-data}
+h5ls("CCD_calibration.hdf5")
+```
+
+We see that our file contains 10 `Groups` named: `10ms`, `20ms`,..., `100ms`. They correspond to the 10 different exposure times. Each `Group` is composed of 2 `Datasets`, one named `stack` (it contains the stack of images) and one named `time` (it contains the times at which the individual images of the stack were taken). We can read the 10 stacks into a list of stacks as follows:
+```{r read-stacks}
+stacks = lapply((1:10)*10,function(i) h5read("CCD_calibration.hdf5",paste0("/",i,"ms/stack")))
+names(stacks) = paste0((1:10)*10,"ms")
+str(stacks)
+```
+
+We can make a graph using a gray scale of the first image at the shortest exposure time as follows:
+```{r first-image}
+chipImage = rbind(matrix(seq(300,450,len=60),nrow=2,ncol=60,byrow=TRUE),
+                  matrix(450,nrow=2,ncol=60),
+				  stacks[["10ms"]][1,,])
+image(chipImage,
+      col=gray.colors(256),
+	  axes=FALSE,
+	  xlab="",
+	  ylab="",
+	  main="Exposure time : 10 ms")
+axis(2,at=c(0,1),
+	 labels=c("300","450"),
+	 lty=0,las=1)
+mtext("ADU      ",side=2,las=1,cex=3)
+```
+
+# Model predictions
+
+How can we test $\mathrm{ADU} \sim \mathrm{G}^2 \, \mathrm{F} + \sqrt{\mathrm{G}^2 \, (\mathrm{F}+\sigma_{ro}^2)} \, \epsilon$ ? Or how to set different values for $\mathrm{F}$?
+
+Let's consider a pixel of our CCD "looking" at a fixed volume fluorescent material. We have two ways of modifying $\mathrm{F}$:
+
+- Change the intensity $i_{e}$ of the light source exciting the fluorophore.
+- Change the exposure time  $\tau$.
+
+We can indeed write our $\mathrm{F}$ as:
+\[\mathrm{F} = \phi v c i_{e} \tau \, ,\]
+where
+
+- $v$ is the solution's volume "seen" by a given pixel,
+- $c$ is the fluorophore's concentration,
+- $\phi$ is the [quantum yield](http://en.wikipedia.org/wiki/Quantum_yield).
+
+
+We introduce a rv $\mathrm{ADU}_{ij}$ for each pixel because it is very difficult (impossible) to have a uniform intensity ($i_e$) and a uniform volume ($v$) and a uniform quantum yield ($\phi$). We have therefore for each pixel:
+\[\mathrm{ADU}_{i,j} \sim \mathrm{G} \, p_{i,j} \tau + \sqrt{\mathrm{G}^2 \, (p_{i,j} \tau+\sigma_{ro}^2)} \, \epsilon_{i,j}\; ,\] 
+where $p_{i,j} = c \phi_{i,j} v_{i,j} i_{e,i,j}$.
+
+If our model is correct we should have for each pixel $i,j$, for a given exposure time, a mean value: 
+\[\overline{\mathrm{ADU}}_{i,j} = \frac{1}{100} \sum_{k=1}^1 \mathrm{ADU}_{i,j,k} \approx \mathrm{G} \, p_{i,j} \tau \]
+and a variance: 
+\[S_{i,j}^2 = \frac{1}{99} \sum_{k=1}^1 (\mathrm{ADU}_{i,j,k}-\overline{\mathrm{ADU}}_{i,j})^2 \approx \mathrm{G}^2 \, (p_{i,j} \tau+\sigma_{ro}^2) \; .\]
+The graph of $S_{i,j}^2$ _vs_ $\overline{\mathrm{ADU}}_{i,j}$ should be a straight line with slope $\mathrm{G}$ and ordinate at 0, $\mathrm{G}^2 \sigma_{ro}^2$.
+
+# Empirical test
+
+For each pixel at each exposure time we want to get the mean count and its variance:
+```{r mean-and-variance-per-pixel}
+ADU.m <- as.vector(
+    sapply(1:length(stacks), 
+           function(idx) 
+           apply(stacks[[idx]],
+                 c(2,3),mean)))
+ADU.v <- as.vector(
+    sapply(1:length(stacks), 
+           function(idx) 
+           apply(stacks[[idx]],
+                 c(2,3),var)))
+```
+
+We plot the variance as a function of the mean:
+```{r variance-vs-mean}
+plot(ADU.m,
+	 ADU.v,
+     pch=".",
+     xlab=expression(bar(ADU)),
+     ylab="var(ADU)"
+     )
+```
+
+We do see the expected linear relation: $\mathrm{Var}[\mathrm{ADU}] = \mathrm{G} \mathrm{E}[\mathrm{ADU}] + \mathrm{G}^2 \sigma_{ro}^2$. 
+
+The [heteroscedasticity](http://en.wikipedia.org/wiki/Heteroscedasticity) (inhomogeneous variance) visible on the graph is also expected since the variance of a variance for an IID sample of size $n$ from a normal distribution with mean $\mu$ and variance $\sigma^2$ is:
+\[\mathrm{Var}[S^2] = \frac{2\sigma^4}{(n-1)} \; .\]
+
+- This means than when we do our linear fit we should use weights. 
+- A software package like `R` allows us to do that by giving a vector whose elements are proportional to inverse of the variance.
+
+This is done with:
+```{r fit-var-vs-mean}
+varVSmean = lm(ADU.v ~ ADU.m, weights = 99/2/ADU.v^2)
+```
+
+Leading to the following coefficients:
+```{r print-coeff}
+round(coefficients(varVSmean),digits=3)
+```
+
+We should __never__ stop here but at least plot the _normalized residuals_ as a function of the fitted value:
+```{r norm-resid-vs-fitted}
+plot(varVSmean$fitted.values,varVSmean$residuals*sqrt(99/2)/ADU.v,pch=".",
+     xlab="Fitted values",ylab="Normalized residuals")
+```
