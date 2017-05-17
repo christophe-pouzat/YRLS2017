@@ -24,11 +24,11 @@ Once this is done, start `R` in the directory where the two `.Rmd` were download
 library(rmarkdown)
 rmarkdown::render("Pouzat_YRLS_20170516.Rmd")
 ```
-to regenerate `Pouzat_YRLS_20170516.html` you have to install first [rhdf5](http://www.bioconductor.org/packages/release/bioc/html/rhdf5.html), then type:
+to regenerate `Pouzat_YRLS_20170516.html`, then you have to install [rhdf5](http://www.bioconductor.org/packages/release/bioc/html/rhdf5.html), and:
 ```{.r}
 rmarkdown::render("Pouzat_YRLS_RR_20170516.Rmd")
 ```
-to regenerate `Pouzat_YRLS_RR_20170516.html`.
+will regenerate `Pouzat_YRLS_RR_20170516.html`.
 
 ## Questions and Answers
 
