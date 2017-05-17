@@ -41,4 +41,4 @@ Here are few questions that came up at the end of the course and some (tentative
 - There is an `R` plug-in for `Excel` (<http://rcom.univie.ac.at/>) but I've never tried it.
 
 **Modeling "at large"**
-A question came up about general modeling strategies or "how does one go from data to models?". A tricky question! There are no general rule I know of but the issue is touch upon in Philipp K. Janert book _Data Analysis with Open Source Tools_ (mentioned in the course) in chapters 7 to 11 (part II) as well as in his (excellent) book on [gnuplot](http://gnuplot.info/): [_Gnuplot in Action_](https://www.manning.com/books/gnuplot-in-action-second-edition). Look at part IV of the book.
+A question came up about general modeling strategies or "how does one go from data to models?". A tricky question! There are no general rule I know of but the issue is touched upon in Philipp K. Janert book _Data Analysis with Open Source Tools_ (mentioned in the course) in chapters 7 to 11 (part II) as well as in his (excellent) book on [gnuplot](http://gnuplot.info/): [_Gnuplot in Action_](https://www.manning.com/books/gnuplot-in-action-second-edition). Look at part IV of the book.
